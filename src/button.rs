@@ -30,14 +30,14 @@ pub enum Button {
     Num9,
     Num0,
     NumEnter,
-    NumMinus
+    NumMinus,
 
     //Left side
     Input,
     ChannelDown,
     ChannelUp,
     ChannelPrevious,
-    Eject
+    Eject,
 
     //Right side
     Power,

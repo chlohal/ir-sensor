@@ -1,3 +1,5 @@
+mod button;
+
 use std::{error::Error, thread, time::{Instant, Duration}};
 
 use rppal::{gpio::{Gpio, InputPin, Level}, system::DeviceInfo};
@@ -26,7 +28,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 #[derive(Debug)]
 struct MessageFrame {
     device: u16,
-    cmd: u16
+    cmd: u8
 }
 
 fn recieve_message(pin: &InputPin) -> Option<MessageFrame> {
@@ -38,9 +40,17 @@ fn recieve_message(pin: &InputPin) -> Option<MessageFrame> {
         return None;
     }
 
+    let device = read_bytes(pin)?;
+
+    let cmd = read_bytes(pin)?;
+    let cmd_inv: u8 = read_bytes(pin)?;
+
+    //the xor of the inverse will have all bits filled!
+    //if it's not, then fail
+    if cmd_inv ^ cmd != 255 { return None; }
+
     return Some(MessageFrame { 
-        device: read_bytes(pin)?,
-        cmd: read_bytes(pin)?
+        device, cmd
     });
 }
 
