@@ -15,7 +15,8 @@ pub fn button_events() -> Result<std::sync::mpsc::Receiver<Button>, Box<dyn std:
     
     std::thread::spawn(move || {
         loop {
-
+            tx.send(Button::Home).unwrap();
+            std::thread::sleep(std::time::Duration::from_millis(1000));
         }
     });
 
