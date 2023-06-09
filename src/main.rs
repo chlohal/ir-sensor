@@ -1,6 +1,6 @@
 use std::{error::Error, thread, time::{Instant, Duration}};
 
-use rppal::{gpio::Gpio, system::DeviceInfo};
+use rppal::{gpio::{Gpio, InputPin, Level}, system::DeviceInfo};
 
 fn main() -> Result<(), Box<dyn Error>> {
     println!("device info: {}", DeviceInfo::new()?.model());
@@ -14,71 +14,44 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let base_state = true;
 
-    let mut last_state: bool = base_state;
-    let mut last_changed: u128 = 0;
-    let mut first_time: Option<Instant> = None;
-    let mut recieved: Vec<(bool, u128)> = Vec::new();
-
     loop {
-        let state = in_pin.is_high();
-
-        if first_time.is_none() && state != base_state {
-            first_time = Some(Instant::now());
-            recieved = Vec::new();
-            last_state = base_state;
-            last_changed = 0;
-        }
-
-        if let Some(start) = first_time {
-            let time_since_transmission = Instant::now().duration_since(start).as_micros();
-            let time_since_last_change = time_since_transmission - last_changed;
-
-            if time_since_last_change > 1_000_000 {
-                first_time = None;
-                print!("{}\n\n", format_recieved_data(&recieved));
-                continue;
-            }
-
-            last_changed = add_period_if_changed(last_state, state, time_since_transmission, last_changed, &mut recieved);
-
-            last_state = state;
+        if let Some(message) = recieve_message(&in_pin) {
+            println!("{:?}", message);
         }
     }
 
     Ok(())
 }
 
+#[derive(Debug)]
 struct MessageFrame {
-    device: u8,
-    cmd: u8
+    device: u16,
+    cmd: u16
 }
 
 fn recieve_message(pin: &InputPin) -> Option<MessageFrame> {
     //ensure we find a valid header component
-    let high_header = time_period(pin, Level::High, 6000)?
-    let low_header = time_period(pin, Level::Low, 6000)?
+    let high_header = time_period(pin, Level::High, 6000)?;
+    let low_header = time_period(pin, Level::Low, 6000)?;
 
     if high_header.abs_diff(4500) > 500 || low_header.abs_diff(4500) > 500 {
         return None;
     }
 
-    let device = read_byte(pin);
-    let device_inv = read_byte(pin);
-
-    let cmd = read_byte(pin);
-    let cmd_inv = read_byte(pin);
-
-    return MessageFrame { device, cmd }; 
+    return Some(MessageFrame { 
+        device: read_bytes(pin)?,
+        cmd: read_bytes(pin)?
+    });
 }
 
-fn read_byte(pin: &InputPin) -> Option<u8> {
-    let mut byte: u8  = 0;
+fn read_bytes<T: Default + std::ops::BitOrAssign<T> + std::ops::Shl<usize, Output = T> + std::convert::From<u8>>(pin: &InputPin) -> Option<T> {
+    let mut byte: T = Default::default();
 
-    for bit in 0..7 {
-        byte |= (read_bit(pin)? << bit);
+    for bit in 0..(std::mem::size_of::<T>()*8) {
+        byte |= <u8 as Into<T>>::into(read_bit(pin)?) << bit;
     }
 
-    return byte;
+    return Some(byte);
 }
 
 
@@ -87,10 +60,10 @@ fn read_byte(pin: &InputPin) -> Option<u8> {
 /// Logical 0: a 0.5622 ms burst followed by a 0.5622 ms low period
 ///digikey.com/en/maker/blogs/2021/understanding-the-basics-of-infrared-communications
 fn read_bit(pin: &InputPin) -> Option<u8> {
-    let burst = time_period(pin, Level::High, 700);
+    let burst = time_period(pin, Level::High, 700)?;
     if burst.abs_diff(562) > 100 { return None; }
 
-    let low_period = time_period(pin, Level::Low, 2000);
+    let low_period = time_period(pin, Level::Low, 2000)?;
 
     if low_period.abs_diff(1687) < 100 { return Some(1); }
     if low_period.abs_diff(562) < 100 { return Some(0); }
