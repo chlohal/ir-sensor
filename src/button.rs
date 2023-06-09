@@ -7,7 +7,7 @@ pub enum Button {
     ArrowLeft,
     ArrowRight,
     ArrowDown,
-    Ok,
+    Enter,
     Exit,
     Hamburger,
     Play,
@@ -30,7 +30,6 @@ pub enum Button {
     Num8,
     Num9,
     Num0,
-    NumEnter,
     NumMinus,
 
     //Left side
@@ -59,7 +58,7 @@ impl TryFrom<u8> for Button {
             101 => Ok(Self::ArrowLeft),
             97 => Ok(Self::ArrowDown),
             98 => Ok(Self::ArrowRight),
-            104 => Ok(Self::Ok),
+            104 => Ok(Self::Enter),
             88 => Ok(Self::Exit),
             31 => Ok(Self::Hamburger),
             69 => Ok(Self::Rewind),
@@ -83,7 +82,6 @@ impl TryFrom<u8> for Button {
             14 => Ok(Self::Num9),
             35 => Ok(Self::NumMinus),
             17 => Ok(Self::Num0),
-            104 => Ok(Self::NumEnter),
 
             1 => Ok(Self::Input),
             18 => Ok(Self::ChannelUp),
