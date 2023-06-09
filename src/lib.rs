@@ -10,6 +10,6 @@ pub use crate::button::Button;
 
 //Debug implementation for non-raspi
 #[cfg( not(target_arch = "arm"))]
-pub fn button_events() -> Result<impl Iterator<Item = Button>, Box<dyn Error>> {
-    (vec![Button::ArrowDown]).iter()
+pub fn button_events() -> Result<impl Iterator<Item = Button>, Box<dyn std::error::Error>> {
+    Ok((vec![Button::ArrowDown]).into_iter())
 }
