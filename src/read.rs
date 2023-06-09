@@ -1,7 +1,5 @@
 
-use std::{error::Error, time::Instant, thread};
-
-use std::sync::mpsc::{self, Receiver};
+use std::{error::Error, time::Instant};
 
 use rppal::gpio::{Gpio, InputPin, Level};
 
@@ -9,22 +7,26 @@ use crate::button::Button;
 
 const REMOTE_DEVICE: u16 = 1799;
 
-pub fn button_events() -> Result<Receiver<Button>, Box<dyn Error>> {
-    let (tx, rx) = mpsc::channel();
-
+pub fn button_events() -> Result<impl Iterator<Item = Button>, Box<dyn Error>> {
     let in_pin = setup_pins()?;
-    
-    thread::spawn(move || {
+
+    Ok(InfraredButtons(in_pin)) 
+}
+
+struct InfraredButtons(InputPin);
+
+impl Iterator for InfraredButtons {
+    type Item = Button;
+
+    fn next(&mut self) -> Option<Self::Item> {
         loop {
-            if let Some(MessageFrame {cmd, device: REMOTE_DEVICE}) = recieve_message(&in_pin) {
+            if let Some(MessageFrame {cmd, device: REMOTE_DEVICE}) = recieve_message(&self.0) {
                 if let Ok(button) = Button::try_from(cmd) {
-                    tx.send(button).unwrap();
+                    return Some(button);
                 }
             }
         }
-    });
-
-    Ok(rx)
+    }
 }
 
 fn setup_pins() -> Result<InputPin, Box<dyn Error>> {
