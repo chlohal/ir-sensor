@@ -10,7 +10,7 @@ pub use crate::button::Button;
 
 //Debug implementation for non-raspi
 #[cfg( not(target_arch = "arm"))]
-pub fn button_events() -> Result<std::sync::mpsc::Receiver<Button>, Box<dyn Error>> {
+pub fn button_events() -> Result<std::sync::mpsc::Receiver<Button>, Box<dyn std::error::Error>> {
     let (tx, rx) = std::sync::mpsc::channel();
     
     std::thread::spawn(move || {
