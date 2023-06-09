@@ -1,6 +1,6 @@
 mod button;
 
-use std::{error::Error, thread, time::{Instant, Duration}};
+use std::{error::Error, time::Instant};
 
 use rppal::{gpio::{Gpio, InputPin, Level}, system::DeviceInfo};
 
@@ -25,8 +25,6 @@ fn main() -> Result<(), Box<dyn Error>> {
             }
         }
     }
-
-    Ok(())
 }
 
 #[derive(Debug)]
