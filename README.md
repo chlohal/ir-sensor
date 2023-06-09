@@ -8,3 +8,5 @@ All the buttons on the remote work, but you need to use the right profile. This 
 It's important to know that the "ENTER" button on the numpad and the d-pad "OK" button have the same code, which I've referred to as `Button::Enter`.
 
 This is a very rough project so far. Calling the `button_events()` function will give you a channel of `Button` events. There is no timestamp associated with buttons; they are simply issued as soon as the transmission is recieved.
+
+On non-arm platforms, the channel will never yield anything.
