@@ -84,20 +84,3 @@ fn time_period(pin: &InputPin, level: Level, timeout: u128) -> Option<u128> {
         }
     }
 }
-
-fn format_recieved_data(data: &Vec<(bool, u128)>) -> String {
-    data
-        .into_iter()
-        .map(|x| format!("\x1b[{}m{}\x1b[0m", if x.0 { "31"  } else { "32"  },  x.1)  )
-        .collect()
-}
-
-fn add_period_if_changed(last: bool, current: bool, time_in_current_period: u128, previous_end_time: u128,  data: &mut Vec<(bool, u128)>) -> u128 {
-    if last != current {
-        data.push((last, time_in_current_period - previous_end_time));
-
-        return time_in_current_period;
-    } else {
-        return previous_end_time;
-    }
-}
