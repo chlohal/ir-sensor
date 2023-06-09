@@ -4,6 +4,10 @@ use std::{error::Error, thread, time::{Instant, Duration}};
 
 use rppal::{gpio::{Gpio, InputPin, Level}, system::DeviceInfo};
 
+use crate::button::Button;
+
+const REMOTE_DEVICE: u16 = 1799;
+
 fn main() -> Result<(), Box<dyn Error>> {
     println!("device info: {}", DeviceInfo::new()?.model());
 
@@ -15,8 +19,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     out_pin.set_high();
 
     loop {
-        if let Some(message) = recieve_message(&in_pin) {
-            println!("{:?}", message);
+        if let Some(MessageFrame {cmd, device: REMOTE_DEVICE}) = recieve_message(&in_pin) {
+            if let Ok(button) = Button::try_from(cmd) {
+                println!("{:?}", button);
+            }
         }
     }
 
