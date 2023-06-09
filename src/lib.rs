@@ -10,15 +10,6 @@ pub use crate::button::Button;
 
 //Debug implementation for non-raspi
 #[cfg( not(target_arch = "arm"))]
-pub fn button_events() -> Result<std::sync::mpsc::Receiver<Button>, Box<dyn std::error::Error>> {
-    let (tx, rx) = std::sync::mpsc::channel();
-    
-    std::thread::spawn(move || {
-        loop {
-            tx.send(Button::Home).unwrap();
-            std::thread::sleep(std::time::Duration::from_millis(1000000));
-        }
-    });
-
-    Ok(rx)
+pub fn button_events() -> Result<impl Iterator<Item = Button>, Box<dyn Error>> {
+    (vec![Button::ArrowDown]).iter()
 }
