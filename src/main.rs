@@ -14,8 +14,6 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     out_pin.set_high();
 
-    let base_state = true;
-
     loop {
         if let Some(message) = recieve_message(&in_pin) {
             println!("{:?}", message);
