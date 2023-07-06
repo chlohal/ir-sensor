@@ -1,7 +1,13 @@
-This project is a client for recieving IR signals from a Philips SRP4419V/27 Universal Remote on a Raspberry Pi.
+This project is a client for recieving IR signals from a Philips SRP4419V/27 Universal Remote on a Raspberry Pi 3b.
 
 For it to work correctly, there must be some kind of IR detector. I used a scavenged one from an LED controller, which I wire-stripped & tied onto the GPIO. 
 There must be an output to the sensor on pin 24, which will always be 3.3v. There must be an input from the sensor on pin 23. To be honest, I'm not really sure how the sensor that I have works (i.e. exact voltages) -- I just know it works like this.
+
+In the interest of helping others, my sensor has:
+
+- black wire on GND
+- white wire on GPIO 23
+- red wire on GPIO 24
 
 All the buttons on the remote work, but you need to use the right profile. This project uses the factory reset profile (which can be accessed by holding down the "SETUP" button for 5 seconds, then pressing the MUTE button, then pressing the number "0")-- I couldn't find any other profile which supported every button.
 
